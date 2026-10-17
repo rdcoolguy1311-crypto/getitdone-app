@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetItDone — Focus Better</title>
+<style>
+:root {
+  --navy: #171936;
+  --purple: #7565ed;
+  --light-purple: #eeeaff;
+  --bg: #f7f7fc;
+  --text: #20213c;
+  --muted: #888ba5;
+  --white: #ffffff;
+  --green: #35b98a;
+  --border: #eaeaf3;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+.app { min-height: 100vh; display: flex; }
+.sidebar {
+  width: 238px; background: var(--navy); color: white;
+  padding: 27px 17px; display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.brand { display:flex; align-items:center; gap:11px; padding:0 8px 35px; }
+.logo {
+  width:39px;height:39px;border-radius:13px;
+  display:grid;place-items:center;background:var(--purple);
+  font-size:21px;font-weight:800;color:white;
+}
+.brand h2 { margin:0;font-size:19px;letter-spacing:-.5px; }
+.brand small { color:#b9b8d6;font-size:11px; }
+.nav-label { font-size:10px;letter-spacing:1.7px;color:#8586ac;padding:0 12px;margin:12px 0; }
+.nav-btn {
+  width:100%;display:flex;align-items:center;gap:12px;
+  border:0;background:transparent;color:#b9bad5;
+  padding:13px 12px;border-radius:11px;text-align:left;
+  margin-bottom:5px;font-size:13px;
+}
+.nav-btn.active,.nav-btn:hover { background:#302e59;color:white; }
+.nav-btn.active { box-shadow:inset 3px 0 var(--purple); }
+.nav-icon { width:20px;text-align:center;font-size:17px; }
+.sidebar-bottom { margin-top:auto; }
+.mini-card { background:#262747;border-radius:14px;padding:15px;margin-top:18px; }
+.mini-card p { font-size:12px;color:#c5c5dd;line-height:1.6; }
+.mini-card button { width:100%;background:var(--purple);color:white;border:0;border-radius:8px;padding:10px;font-size:12px; }
+.main { flex:1;min-width:0;padding:29px 34px 50px; }
+.topbar { display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:30px; }
+.greeting h1 { margin:0;font-size:25px;letter-spacing:-.8px; }
+.greeting p { margin:7px 0 0;font-size:13px;color:var(--muted); }
+.top-actions { display:flex;align-items:center;gap:10px; }
+.date-pill,.parent-toggle {
+  border:1px solid var(--border);background:white;border-radius:10px;
+  padding:10px 13px;font-size:12px;color:var(--text);
+}
+.parent-toggle { background:var(--navy);color:white;border-color:var(--navy); }
+.hero {
+  background:linear-gradient(115deg,#262348,#494078 70%,#6d5de0);
+  border-radius:19px;color:white;padding:27px 29px;
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  overflow:hidden;position:relative;margin-bottom:23px;
+}
+.hero:after {
+  content:"";position:absolute;width:210px;height:210px;border-radius:50%;
+  border:35px solid #ffffff0b;right:70px;top:-100px;pointer-events:none;
+}
+.hero h2 { margin:0 0 9px;font-size:22px;letter-spacing:-.5px; }
+.hero p { color:#d2d0e8;font-size:12px;line-height:1.7;margin:0;max-width:370px; }
+.hero button { margin-top:17px;background:white;color:#423779;border:0;border-radius:9px;padding:11px 15px;font-weight:700;font-size:12px; }
+.hero-emoji { font-size:63px;z-index:1; }
+.stats { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:25px; }
+.stat { background:white;border:1px solid var(--border);border-radius:15px;padding:19px;min-width:0; }
+.stat-head { display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted); }
+.stat-icon { background:var(--light-purple);border-radius:9px;padding:9px;font-size:17px; }
+.stat-number { font-size:27px;font-weight:750;margin:14px 0 6px;letter-spacing:-.8px; }
+.stat-note { font-size:11px;color:var(--muted); }
+.green { color:var(--green); }
+.layout { display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:20px; }
+.panel { background:white;border:1px solid var(--border);border-radius:15px;padding:21px;min-width:0;margin-bottom:20px; }
+.panel-head { display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px; }
+.panel-head h3 { margin:0;font-size:15px; }
+.panel-head button,.text-button { background:transparent;border:0;color:var(--purple);font-size:12px;font-weight:650; }
+.task { display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f0f0f7; }
+.task:last-child { border-bottom:0; }
+.task-check { width:19px;height:19px;accent-color:var(--purple);flex-shrink:0; }
+.task-info { flex:1;min-width:0; }
+.task-title { font-size:12px;font-weight:650;overflow-wrap:anywhere; }
+.task.done .task-title { text-decoration:line-through;color:#a1a2b4; }
+.task-meta { font-size:10px;color:var(--muted);margin-top:6px; }
+.tag { padding:5px 7px;border-radius:6px;font-size:9px;white-space:nowrap;background:#eeeaff;color:#6a59d9; }
+.tag.high { background:#fff0ed;color:#df7867; }
+.tag.low { background:#e7f8f0;color:#239b71; }
+.add-task { display:flex;gap:8px;margin-top:15px; }
+.add-task input { flex:1;min-width:0;padding:11px;border:1px solid var(--border);border-radius:9px;font-size:12px; }
+.primary { background:var(--purple);color:white;border:0;border-radius:9px;padding:11px 14px;font-size:12px;font-weight:650; }
+.timer-panel { text-align:center; }
+.timer-panel .panel-head { text-align:left; }
+.timer-circle {
+  width:175px;height:175px;border-radius:50%;border:8px solid #eeebff;
+  border-top-color:var(--purple);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;margin:16px auto 20px;
+}
+.timer-time { font-size:36px;font-weight:750;letter-spacing:-1px; }
+.timer-label { color:var(--muted);font-size:11px;margin-top:5px; }
+.timer-controls { display:flex;justify-content:center;gap:8px; }
+.timer-controls button { border-radius:9px;padding:11px 16px;font-size:12px; }
+.timer-start { background:var(--purple);color:white;border:0; }
+.timer-reset { background:white;border:1px solid var(--border);color:var(--text); }
+.timer-caption { color:var(--muted);font-size:11px;line-height:1.6;margin:15px 0 0; }
+.progress-row { display:flex;justify-content:space-between;font-size:11px;margin:15px 0 9px; }
+.track { height:7px;border-radius:10px;background:#efeff7;overflow:hidden; }
+.fill { height:100%;background:var(--purple);border-radius:10px;transition:width .2s; }
+.week { display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:19px; }
+.day { text-align:center;font-size:10px;color:var(--muted); }
+.day span { width:29px;height:29px;border-radius:9px;display:grid;place-items:center;margin:8px auto 0;background:#f4f3fc;color:var(--text); }
+.day.today span { background:var(--purple);color:white; }
+.upload-box { border:1.5px dashed #d8d2fb;border-radius:12px;padding:21px 12px;text-align:center;background:#fbfaff; }
+.upload-box .upload-icon { font-size:28px; }
+.upload-box p { color:var(--muted);font-size:11px;line-height:1.6; }
+.upload-box button { background:var(--light-purple);color:#6553d2;border:0;border-radius:8px;padding:10px 13px;font-size:11px;font-weight:650; }
+#journalPreview { max-width:100%;max-height:180px;object-fit:contain;margin-top:12px;border-radius:8px; }
+.journal-entry { font-size:11px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere;margin-top:10px; }
+.hidden { display:none!important; }
+.parent-note { font-size:12px;line-height:1.8;color:var(--muted); }
+.focus-banner { background:#fff7e6;color:#956b1c;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;margin-bottom:18px; }
+.empty { color:var(--muted);font-size:12px;padding:15px 0; }
+.footer { text-align:center;color:#a1a2b4;font-size:10px;margin-top:10px; }
+@media(max-width:850px) {
+ .sidebar{width:190px}.main{padding:23px 20px}.layout{grid-template-columns:1fr}
+ .hero-emoji{font-size:48px}
+}
+@media(max-width:600px) {
+ .app{display:block}.sidebar{width:100%;padding:13px 14px;display:block}
+ .brand{padding:0 5px 12px}.brand small{display:none}
+ .sidebar .nav-label,.sidebar-bottom{display:none}
+ .sidebar nav{display:flex;overflow-x:auto;gap:5px}
+ .nav-btn{width:auto;white-space:nowrap;margin:0;padding:10px;font-size:11px;gap:6px}
+ .nav-icon{font-size:14px;width:auto}
+ .main{padding:20px 14px 35px}
+ .topbar{align-items:flex-start;flex-wrap:wrap;margin-bottom:20px}
+ .greeting h1{font-size:22px}.date-pill{display:none}
+ .hero{padding:22px 19px}.hero h2{font-size:19px}.hero-emoji{font-size:39px}
+ .stats{gap:8px}.stat{padding:12px 10px}.stat-head{font-size:10px}.stat-icon{padding:6px}
+ .stat-number{font-size:22px}.stat-note{font-size:9px}
+ .panel{padding:16px}.layout{gap:5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">G</div>
+      <div><h2>GetItDone</h2><small>Focus. Learn. Achieve.</small></div>
+    </div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav>
+      <button class="nav-btn active" data-view="student"><span class="nav-icon">⌂</span>Dashboard</button>
+      <button class="nav-btn" data-view="tasks"><span class="nav-icon">✓</span>My tasks</button>
+      <button class="nav-btn" data-view="focus"><span class="nav-icon">◷</span>Focus room</button>
+      <button class="nav-btn" data-view="journal"><span class="nav-icon">▤</span>My journal</button>
+      <button class="nav-btn" data-view="parent"><span class="nav-icon">♙</span>Parent view</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="nav-label">YOUR GOAL</div>
+      <div class="mini-card">
+        <strong style="font-size:13px">Small steps count.</strong>
+        <p>Every focused session brings you closer to your goals.</p>
+        <button id="sideFocus">Start focusing →</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="greeting">
+        <h1 id="greeting">Good afternoon! 👋</h1>
+        <p>Let's make today productive, one task at a time.</p>
+      </div>
+      <div class="top-actions">
+        <div class="date-pill" id="dateText"></div>
+        <button class="parent-toggle" id="parentToggle">Parent view ↗</button>
+      </div>
+    </header>
+
+    <div id="focusBanner" class="focus-banner hidden">
+      ⚠️ One distraction detected. Stay focused! Switching tabs can be detected, but this prototype cannot lock other apps or prevent you from leaving.
+    </div>
+
+    <section class="hero">
+      <div>
+        <h2 id="heroTitle">Your goals. Your pace.</h2>
+        <p id="heroText">Big assignments become easier when you break them into small, manageable steps. Let's get started.</p>
+        <button id="heroButton">Start a focus session →</button>
+      </div>
+      <div class="hero-emoji">🎯</div>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-head">Tasks completed <span class="stat-icon">✓</span></div>
+        <div class="stat-number" id="completedStat">0</div>
+        <div class="stat-note">Keep up the momentum</div>
+      </div>
+      <div class="stat">
+        <div class="stat-head">Focus minutes <span class="stat-icon">◷</span></div>
+        <div class="stat-number" id="minutesStat">0</div>
+        <div class="stat-note">Time spent concentrating</div>
+      </div>
+      <div class="stat">
+        <div class="stat-head">Tasks remaining <span class="stat-icon">▤</span></div>
+        <div class="stat-number" id="remainingStat">0</div>
+        <div class="stat-note">One step at a time</div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="panel" id="tasksPanel">
+          <div class="panel-head">
+            <h3>Today's tasks</h3>
+            <button id="showAllTasks">View all →</button>
+          </div>
+          <div id="taskList"></div>
+          <form id="addTaskForm" class="add-task">
+            <input id="taskInput" placeholder="Add a task..." maxlength="100" required>
+            <button class="primary" type="submit">+ Add</button>
+          </form>
+        </section>
+
+        <section class="panel" id="journalPanel">
+          <div class="panel-head"><h3>My learning journal</h3><span>📚</span></div>
+          <div class="upload-box">
+            <div class="upload-icon">📄</div>
+            <strong style="font-size:13px">Save your work</strong>
+            <p>Upload a photo of your notes, homework or completed assignment.</p>
+            <input type="file" id="journalFile" accept="image/*" hidden>
+            <button type="button" id="uploadButton">+ Upload a photo</button>
+            <div id="journalStatus" class="journal-entry">No work uploaded yet.</div>
+            <img id="journalPreview" class="hidden" alt="Preview of uploaded work">
+          </div>
+          <p class="journal-entry">Prototype note: uploads are previewed locally and are not automatically shared with a parent or stored in a cloud account.</p>
+        </section>
+      </div>
+
+      <div>
+        <section class="panel timer-panel" id="timerPanel">
+          <div class="panel-head"><h3>Focus room</h3><span>🍅</span></div>
+          <div style="font-size:11px;color:var(--muted)">POMODORO SESSION</div>
+          <div class="timer-circle">
+            <div class="timer-time" id="timerDisplay">25:00</div>
+            <div class="timer-label" id="timerLabel">Ready to focus</div>
+          </div>
+          <div class="timer-controls">
+            <button class="timer-start" id="timerStart">▶ Start focus</button>
+            <button class="timer-reset" id="timerReset">↻ Reset</button>
+          </div>
+          <p class="timer-caption">Focus for 25 minutes, then take a 10-minute break. Stay consistent, not perfect.</p>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><h3>Your daily progress</h3><span>📈</span></div>
+          <div class="progress-row"><span>Tasks completed</span><strong id="progressLabel">0%</strong></div>
+          <div class="track"><div class="fill" id="progressFill" style="width:0%"></div></div>
+          <div class="week" id="weekDays"></div>
+        </section>
+
+        <section class="panel hidden" id="parentPanel">
+          <div class="panel-head"><h3>Parent overview</h3><span>♙</span></div>
+          <p class="parent-note">A simple overview of the student's progress on this device.</p>
+          <div class="progress-row"><span>Tasks completed</span><strong id="parentCompleted">0</strong></div>
+          <div class="progress-row"><span>Tasks remaining</span><strong id="parentRemaining">0</strong></div>
+          <div class="progress-row"><span>Focus minutes</span><strong id="parentMinutes">0</strong></div>
+          <div class="track"><div class="fill" id="parentFill" style="width:0%"></div></div>
+          <p class="parent-note" id="parentMessage">Complete a task to see progress here.</p>
+          <p class="parent-note">This is a demonstration, not a secure parent account. Both views use the same browser data.</p>
+        </section>
+      </div>
+    </div>
+    <div class="footer">GETITDONE · Focus on progress, not perfection.</div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  const defaultTasks = [
+    { id: 1, title: "Finish mathematics homework", category: "School", priority: "High", done: false },
+    { id: 2, title: "Review today's science notes", category: "Revision", priority: "Medium", done: false },
+    { id: 3, title: "Read for 20 minutes", category: "Personal", priority: "Low", done: false }
+  ];
+
+  let tasks = defaultTasks;
+  let focusMinutes = 0;
+  let secondsLeft = 25 * 60;
+  let timerInterval = null;
+  let running = false;
+  let mode = "focus";
+  let view = "student";
+  let distractions = 0;
+
+  try {
+    const saved = localStorage.getItem("gid_prototype_v1");
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (Array.isArray(data.tasks)) tasks = data.tasks;
+      if (Number.isFinite(data.focusMinutes)) focusMinutes = data.focusMinutes;
+    }
+  } catch (e) {}
+
+  function save() {
+    try {
+      localStorage.setItem("gid_prototype_v1", JSON.stringify({
+        tasks, focusMinutes
+      }));
+    } catch (e) {}
+  }
+
+  function escapeHTML(text) {
+    return String(text).replace(/[&<>"']/g, char => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;",
+      '"':"&quot;", "'":"&#39;"
+    })[char]);
+  }
+
+  function renderTasks() {
+    const list = $("taskList");
+    if (!tasks.length) {
+      list.innerHTML = '<div class="empty">No tasks yet. Add your first task below.</div>';
+    } else {
+      list.innerHTML = tasks.map(task => `
+        <div class="task ${task.done ? "done" : ""}">
+          <input class="task-check" type="checkbox" data-id="${task.id}"
+            aria-label="Complete ${escapeHTML(task.title)}" ${task.done ? "checked" : ""}>
+          <div class="task-info">
+            <div class="task-title">${escapeHTML(task.title)}</div>
+            <div class="task-meta">${escapeHTML(task.category || "Personal")}</div>
+          </div>
+          <span class="tag ${task.priority === "High" ? "high" : task.priority === "Low" ? "low" : ""}">${escapeHTML(task.priority || "Medium")}</span>
+        </div>`).join("");
+    }
+    list.querySelectorAll(".task-check").forEach(check => {
+      check.addEventListener("change", () => {
+        const task = tasks.find(t => t.id === Number(check.dataset.id));
+        if (task) task.done = check.checked;
+        save();
+        render();
+      });
+    });
+  }
+
+  function render() {
+    renderTasks();
+    const completed = tasks.filter(t => t.done).length;
+    const remaining = tasks.length - completed;
+    const percent = tasks.length ? Math.round(completed / tasks.length * 100) : 0;
+
+    $("completedStat").textContent = completed;
+    $("minutesStat").textContent = focusMinutes;
+    $("remainingStat").textContent = remaining;
+    $("progressLabel").textContent = percent + "%";
+    $("progressFill").style.width = percent + "%";
+
+    $("parentCompleted").textContent = completed;
+    $("parentRemaining").textContent = remaining;
+    $("parentMinutes").textContent = focusMinutes;
+    $("parentFill").style.width = percent + "%";
+    $("parentMessage").textContent = tasks.length
+      ? percent === 100 ? "Great work! All current tasks are complete." : "Keep going. " + remaining + " task(s) remain."
+      : "Add tasks to start tracking progress.";
+
+    $("heroTitle").textContent = view === "parent" ? "Progress starts with support." : "Your goals. Your pace.";
+    $("heroText").textContent = view === "parent"
+      ? "See the student's task progress and focus time in this local prototype."
+      : "Big assignments become easier when you break them into small, manageable steps. Let's get started.";
+
+    $("parentPanel").classList.toggle("hidden", view !== "parent");
+    $("parentToggle").textContent = view === "parent" ? "Student view ↗" : "Parent view ↗";
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.view === view ||
+        (view === "tasks" && btn.dataset.view === "tasks") ||
+        (view === "focus" && btn.dataset.view === "focus") ||
+        (view === "journal" && btn.dataset.view === "journal"));
+    });
+  }
+
+  function switchView(next) {
+    view = next;
+    render();
+    const targets = {
+      student: null, tasks: "tasksPanel", focus: "timerPanel",
+      journal: "journalPanel", parent: "parentPanel"
+    };
+    if (targets[next]) {
+      $(targets[next]).scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchView(btn.dataset.view));
+  });
+
+  $("parentToggle").addEventListener("click", () => {
+    switchView(view === "parent" ? "student" : "parent");
+  });
+
+  $("sideFocus").addEventListener("click", () => switchView("focus"));
+  $("heroButton").addEventListener("click", () => switchView("focus"));
+  $("showAllTasks").addEventListener("click", () => switchView("tasks"));
+
+  $("addTaskForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const input = $("taskInput");
+    const title = input.value.trim();
+    if (!title) return;
+    tasks.push({
+      id: Date.now(),
+      title,
+      category: "Personal",
+      priority: "Medium",
+      done: false
+    });
+    input.value = "";
+    save();
+    render();
+  });
+
+  function updateTimer() {
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
+    $("timerDisplay").textContent =
+      String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+    $("timerLabel").textContent = running
+      ? (mode === "focus" ? "Stay focused!" : "Take a break")
+      : (mode === "focus" ? "Ready to focus" : "Break time");
+    $("timerStart").textContent = running ? "Ⅱ Pause" : "▶ " +
+      (secondsLeft === (mode === "focus" ? 1500 : 600) ? "Start " : "Resume ") +
+      (mode === "focus" ? "focus" : "break");
+  }
+
+  function stopTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    running = false;
+    updateTimer();
+  }
+
+  function startTimer() {
+    if (running) {
+      stopTimer();
+      return;
+    }
+    running = true;
+    updateTimer();
+    timerInterval = setInterval(() => {
+      secondsLeft--;
+      if (mode === "focus" && secondsLeft % 60 === 0) {
+        focusMinutes++;
+        save();
+        render();
+      }
+      if (secondsLeft <= 0) {
+        if (mode === "focus") focusMinutes += 0;
+        stopTimer();
+        mode = mode === "focus" ? "break" : "focus";
+        secondsLeft = mode === "focus" ? 25 * 60 : 10 * 60;
+        updateTimer();
+        alert(mode === "break"
+          ? "Focus session complete! Time for a 10-minute break."
+          : "Break finished! Ready for another focus session?");
+        save();
+        render();
+        return;
+      }
+      updateTimer();
+    }, 1000);
+  }
+
+  $("timerStart").addEventListener("click", startTimer);
+  $("timerReset").addEventListener("click", () => {
+    stopTimer();
+    mode = "focus";
+    secondsLeft = 25 * 60;
+    updateTimer();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && running && mode === "focus") {
+      distractions++;
+      $("focusBanner").classList.remove("hidden");
+      $("focusBanner").textContent =
+        "⚠️ One distraction detected. Stay focused! (" + distractions +
+        " detected this session.) This prototype detects tab changes but cannot lock other apps.";
+    }
+  });
+
+  $("uploadButton").addEventListener("click", () => $("journalFile").click());
+
+  $("journalFile").addEventListener("change", () => {
+    const file = $("journalFile").files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      $("journalStatus").textContent = "Please choose an image file.";
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      $("journalStatus").textContent = "Please choose an image under 8 MB.";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      $("journalPreview").src = reader.result;
+      $("journalPreview").classList.remove("hidden");
+      $("journalStatus").textContent = "Selected: " + file.name + ". Preview only; not uploaded to a server.";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  const hour = new Date().getHours();
+  $("greeting").textContent =
+    (hour < 12 ? "Good morning!" : hour < 17 ? "Good afternoon!" : "Good evening!") + " 👋";
+
+  $("dateText").textContent = new Date().toLocaleDateString(undefined, {
+    weekday: "short", month: "short", day: "numeric"
+  });
+
+  const today = new Date();
+  const mondayOffset = (today.getDay() + 6) % 7;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - mondayOffset);
+  $("weekDays").innerHTML = ["M","T","W","T","F","S","S"].map((day, i) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    const isToday = date.toDateString() === today.toDateString();
+    return `<div class="day ${isToday ? "today" : ""}">${day}<span>${date.getDate()}</span></div>`;
+  }).join("");
+
+  updateTimer();
+  render();
+})();
+</script>
+</body>
+</html>
