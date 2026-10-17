@@ -292,6 +292,44 @@ button { cursor: pointer; }
       </div>
     </div>
     <div class="footer">GETITDONE · Focus on progress, not perfection.</div>
+  
+<section class="panel hidden" id="tutorPanel">
+  <h2>✦ AI Study Tutor</h2>
+  <p>Stuck on something? Let's learn it together.</p>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;">
+    <button type="button" class="prompt-btn"
+      onclick="document.getElementById('tutorQuestion').value='Explain this concept step by step.'">
+      Explain a concept
+    </button>
+
+    <button type="button" class="prompt-btn"
+      onclick="document.getElementById('tutorQuestion').value='Help me solve a maths problem step by step.'">
+      Maths help
+    </button>
+
+    <button type="button" class="prompt-btn"
+      onclick="document.getElementById('tutorQuestion').value='Help me revise for a test.'">
+      Test revision
+    </button>
+  </div>
+
+  <label for="tutorQuestion">What would you like help with?</label>
+
+  <textarea id="tutorQuestion" rows="4"
+    maxlength="2000"
+    placeholder="Ask a question about maths, science, English..."></textarea>
+
+  <button type="button" id="askTutorBtn" onclick="askTutor()">
+    Ask AI Tutor
+  </button>
+
+  <p id="tutorStatus" role="status"></p>
+
+  <div id="tutorAnswer"
+    style="white-space:pre-wrap;overflow-wrap:anywhere;margin-top:16px;"></div>
+</section>
+
   </main>
 </div>
 
