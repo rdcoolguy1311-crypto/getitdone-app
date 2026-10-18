@@ -594,6 +594,49 @@ button { cursor: pointer; }
   updateTimer();
   render();
 })();
+
+async function askTutor() {
+  const questionBox = document.getElementById("tutorQuestion");
+  const answerBox = document.getElementById("tutorAnswer");
+  const statusBox = document.getElementById("tutorStatus");
+  const button = document.getElementById("askTutorBtn");
+
+  const question = questionBox.value.trim();
+
+  if (!question) {
+    statusBox.textContent = "Please type a question first.";
+    return;
+  }
+
+  button.disabled = true;
+  statusBox.textContent = "Thinking...";
+  answerBox.textContent = "";
+
+  try {
+    const response = await fetch("/.netlify/functions/ai-tutor", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ question })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "The tutor couldn't answer.");
+    }
+
+    answerBox.textContent = data.answer;
+    statusBox.textContent = "Here's your explanation!";
+  } catch (error) {
+    statusBox.textContent =
+      "Couldn't connect to the AI tutor. Check the deployment and try again.";
+  } finally {
+    button.disabled = false;
+  }
+}
+
 </script>
 </body>
 </html>
