@@ -22,7 +22,7 @@ export default async (req) => {
       );
     }
 
-    const apiKey = Netlify.env.get("OPENAI_API_KEY");
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
       return new Response(
