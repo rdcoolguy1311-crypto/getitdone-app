@@ -61,6 +61,7 @@ export default async (req) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("OpenAI API error:", response.status, data.error?.message || "No details");
       return new Response(
         JSON.stringify({
           error: "The tutor couldn't answer right now. Please try again."
@@ -88,7 +89,8 @@ export default async (req) => {
         headers: { "Content-Type": "application/json" }
       }
     );
-  } catch {
+ } catch (error) {
+  console.error("AI tutor function error:", error);
     return new Response(
       JSON.stringify({ error: "Something went wrong. Please try again." }),
       {
