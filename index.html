@@ -619,7 +619,7 @@ async function askTutor() {
   answerBox.textContent = "";
 
   try {
-    const response = await fetch("/.netlify/functions/ai-tutor", {
+   const response = await fetch("https://gidaitutor.rdcoolguy1311.workers.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
